@@ -21,15 +21,13 @@ var (
 type ListenFunc func(context.Context, string) error
 
 type App struct {
-	startedAt time.Time
-	timeout   *time.Duration
+	timeout *time.Duration
 }
 
 func NewApp(timeout *time.Duration) (*App, error) {
 
 	return &App{
-		startedAt: time.Now(),
-		timeout:   timeout,
+		timeout: timeout,
 	}, nil
 }
 
