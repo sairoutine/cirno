@@ -9,6 +9,7 @@ import (
 	"log"
 	"net"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -52,33 +53,47 @@ func (c *App) ListenTCP(ctx context.Context, addr string) error {
 }
 
 func (c *App) listen(ctx context.Context, l net.Listener) error {
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
-		<-ctx.Done()
-		if err := l.Close(); err != nil {
-			log.Println(err)
+		defer wg.Done()
+
+		for {
+			conn, err := l.Accept()
+			if err != nil {
+				select {
+				case <-ctx.Done():
+					log.Println("Shutting down listener")
+					return
+				default:
+					log.Println(err)
+					return
+				}
+			}
+
+			wg.Add(1)
+			go c.handleConn(ctx, &wg, conn)
 		}
 	}()
 
-	for {
-		conn, err := l.Accept()
-		if err != nil {
-			select {
-			case <-ctx.Done():
-				log.Println("Shutting down listener")
-				return nil
-			default:
-				return err
-			}
-		}
+	<-ctx.Done()
 
-		go c.handleConn(ctx, conn)
+	// refuse new client
+	if err := l.Close(); err != nil {
+		return err
 	}
+
+	log.Println("wait client connection closed...")
+	wg.Wait()
+	log.Println("all connecting client are closed")
+
 	return nil
 }
 
-func (c *App) handleConn(ctx context.Context, conn net.Conn) {
+func (c *App) handleConn(ctx context.Context, wg *sync.WaitGroup, conn net.Conn) {
 	defer func() {
 		conn.Close()
+		wg.Done()
 	}()
 
 	// set initial timeout
@@ -94,14 +109,6 @@ func (c *App) handleConn(ctx context.Context, conn net.Conn) {
 	w := bufio.NewWriter(conn)
 
 	for {
-		// check shutdown
-		select {
-		case <-ctx.Done():
-			// shutting down
-			return
-		default:
-		}
-
 		// get client data
 		if !scanner.Scan() {
 			if err := scanner.Err(); err != nil {
