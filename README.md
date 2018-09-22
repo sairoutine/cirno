@@ -21,16 +21,18 @@ Build from source code.
 ```
 $ go get github.com/sairoutine/cirno
 $ cd $GOPATH/github.com/sairoutine/cirno
-go install
+$ go install
 ```
 
 ## Usage
 
 ```
 $ cd $GOPATH/github.com/sairoutine/cirno/cmd/cirno_server
-go build
-./cirno_server -port=7238
-./cirno_server -sock=/path/to/unix-domain.sock
+$ go build
+$ # tcp
+$ ./cirno_server -port=7238
+$ # unix domain socket
+$ ./cirno_server -sock=/path/to/unix-domain.sock
 ```
 
 ## Protocol
@@ -57,6 +59,7 @@ VALUE(s) are unique IDs.
 Returns a version of Cirno.
 
 ```
+VERSION
 VERSION 1.0.0
 ```
 
