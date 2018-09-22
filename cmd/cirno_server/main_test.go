@@ -9,9 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lestrrat-go/tcptest"
-
 	"github.com/bradfitz/gomemcache/memcache"
+	"github.com/lestrrat-go/tcptest"
 )
 
 var mc *memcache.Client
@@ -37,7 +36,6 @@ func TestMain(m *testing.M) {
 			cmd.Process.Signal(syscall.SIGTERM)
 		}
 	}()
-
 	mc = memcache.New(fmt.Sprintf("localhost:%s", server.Port()))
 
 	// execute test for cirno server
@@ -48,7 +46,6 @@ func TestMain(m *testing.M) {
 
 	// And wait
 	server.Wait()
-
 	os.Exit(code)
 }
 
@@ -69,6 +66,5 @@ func BenchmarkParallel(b *testing.B) {
 }
 
 func DoAnyThing() {
-	v, _ := mc.Get("id")
-	log.Println(string(v.Value))
+	mc.Get("id")
 }
