@@ -4,7 +4,9 @@ import (
 	"context"
 	"log"
 	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 
 	"github.com/sairoutine/cirno"
 	"github.com/urfave/cli"
@@ -48,7 +50,6 @@ func main() {
 		wg.Add(1)
 		go signalHandler(ctx, cancel, &wg)
 
-		// main listener
 		fn, addr, err := listenFunc(cirnoConfig{
 			port:     c.Uint("port"),
 			sockpath: c.String("sock"),
@@ -67,7 +68,6 @@ func main() {
 		return nil
 	}
 
-	// execute
 	err := app.Run(os.Args)
 	if err != nil {
 		log.Fatal(err)
@@ -75,7 +75,21 @@ func main() {
 }
 
 func signalHandler(ctx context.Context, cancel context.CancelFunc, wg *sync.WaitGroup) {
-
+	defer wg.Done()
+	trapSignals := []os.Signal{
+		syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGQUIT,
+	}
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, trapSignals...)
+	select {
+	case sig := <-sigCh:
+		log.Printf("received signal %s", sig)
+		cancel()
+	case <-ctx.Done():
+	}
 }
 
 func listenFunc(conf cirnoConfig) (cirno.ListenFunc, string, error) {
