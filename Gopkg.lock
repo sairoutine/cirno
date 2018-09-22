@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/bradfitz/gomemcache"
+  packages = ["memcache"]
+  revision = "bc664df9673713a0ccf26e3b55a673ec7301088b"
+
+[[projects]]
   name = "github.com/rs/xid"
   packages = ["."]
   revision = "15d26544def341f036c5f8dca987a4cbe575032c"
@@ -16,6 +22,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b8bda18a9755bae15b2c37d26e09e4b1a400ac37ee8f97a80fffcf859ac9efa7"
+  inputs-digest = "1e0f4a586cddf2234de8f2fb22e294a7b538cb6a843fcad1a457eb04e969026f"
   solver-name = "gps-cdcl"
   solver-version = 1
