@@ -88,7 +88,7 @@ func signalHandler(ctx context.Context, cancel context.CancelFunc, wg *sync.Wait
 	signal.Notify(sigCh, trapSignals...)
 	select {
 	case sig := <-sigCh:
-		log.Printf("received signal %s", sig)
+		log.Printf("received signal %s\n", sig)
 		cancel()
 	case <-ctx.Done():
 	}
