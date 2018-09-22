@@ -8,6 +8,18 @@
   revision = "bc664df9673713a0ccf26e3b55a673ec7301088b"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/lestrrat-go/tcptest"
+  packages = ["."]
+  revision = "f0345789c593152334fd502c59174e2545d39a31"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/lestrrat-go/tcputil"
+  packages = ["."]
+  revision = "d3c7f98154fbd76b67d9a534c5032fb60a546803"
+
+[[projects]]
   name = "github.com/rs/xid"
   packages = ["."]
   revision = "15d26544def341f036c5f8dca987a4cbe575032c"
@@ -22,6 +34,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1e0f4a586cddf2234de8f2fb22e294a7b538cb6a843fcad1a457eb04e969026f"
+  inputs-digest = "a8d38189c7f5fbba8bda05bfe7d2cde95062af6b74803e5380be6696de77238d"
   solver-name = "gps-cdcl"
   solver-version = 1
