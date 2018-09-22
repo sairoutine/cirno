@@ -2,6 +2,7 @@ package cirno
 
 import (
 	"context"
+	"log"
 	"net"
 	"time"
 
@@ -35,7 +36,7 @@ func (c *App) ListenSock(ctx context.Context, sockpath string) error {
 		return err
 	}
 
-	return c.Listen(ctx, l)
+	return c.listen(ctx, l)
 }
 
 // ListenTCP starts to listen on addr "host:port".
@@ -45,10 +46,35 @@ func (c *App) ListenTCP(ctx context.Context, addr string) error {
 		return err
 	}
 
-	return c.Listen(ctx, l)
+	return c.listen(ctx, l)
 }
 
-func (c *App) Listen(ctx context.Context, l net.Listener) error {
+func (c *App) listen(ctx context.Context, l net.Listener) error {
+	go func() {
+		<-ctx.Done()
+		if err := l.Close(); err != nil {
+			log.Println(err)
+		}
+	}()
+
+	for {
+		conn, err := l.Accept()
+		if err != nil {
+			select {
+			case <-ctx.Done():
+				log.Println("Shutting down listener")
+				return nil
+			default:
+				return err
+			}
+		}
+
+		go c.handleConn(ctx, conn)
+	}
+	return nil
+}
+
+func (c *App) handleConn(ctx context.Context, conn net.Conn) error {
 
 	return nil
 }
