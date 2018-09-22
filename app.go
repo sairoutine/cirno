@@ -94,30 +94,32 @@ func (c *App) handleConn(ctx context.Context, conn net.Conn) {
 	w := bufio.NewWriter(conn)
 
 	for {
+		// check shutdown
+		select {
+		case <-ctx.Done():
+			// shutting down
+			return
+		default:
+		}
+
 		// get client data
 		if !scanner.Scan() {
 			if err := scanner.Err(); err != nil {
-				select {
-				case <-ctx.Done():
-					// shutting down
-					return
-				default:
-					if ne, ok := err.(net.Error); ok {
-						switch {
-						case ne.Timeout():
-							// client timeout
-							return
-						case ne.Temporary():
-							// try to scan again
-							continue
-						default:
-							log.Println(err)
-							return
-						}
-					} else {
+				if ne, ok := err.(net.Error); ok {
+					switch {
+					case ne.Timeout():
+						// client timeout
+						return
+					case ne.Temporary():
+						// try to scan again
+						continue
+					default:
 						log.Println(err)
 						return
 					}
+				} else {
+					log.Println(err)
+					return
 				}
 			} else {
 				return
