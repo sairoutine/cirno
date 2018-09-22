@@ -11,17 +11,30 @@ import (
 )
 */
 
-const Version = "1.0.0"
+const (
+	Version         = "1.0.0"
+	InfiniteTimeout = time.Duration(0)
+)
 
 type ListenFunc func(context.Context, string) error
 
 type App struct {
-	idleTimeout time.Duration
+	timeout *time.Duration
 }
 
-func NewApp(timeout time.Duration) *App {
+func NewApp(timeout *time.Duration) (*App, error) {
 
 	return &App{
-		idleTimeout: timeout,
-	}
+		timeout: timeout,
+	}, nil
+}
+
+func (c *App) ListenSock(context.Context, string) error {
+
+	return nil
+}
+
+func (c *App) ListenTCP(context.Context, string) error {
+
+	return nil
 }

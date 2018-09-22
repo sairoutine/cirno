@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/sairoutine/cirno"
 	"github.com/urfave/cli"
@@ -93,8 +95,23 @@ func signalHandler(ctx context.Context, cancel context.CancelFunc, wg *sync.Wait
 }
 
 func listenFunc(conf cirnoConfig) (cirno.ListenFunc, string, error) {
+	var timeout time.Duration
+	if conf.timeout == 0 {
+		timeout = cirno.InfiniteTimeout
+	} else {
+		timeout = time.Duration(conf.timeout) * time.Second
+	}
 
-	return nil, "", nil
+	app, err := cirno.NewApp(&timeout)
+	if err != nil {
+		return nil, "", err
+	}
+
+	if conf.sockpath != "" {
+		return app.ListenSock, conf.sockpath, nil
+	} else {
+		return app.ListenTCP, fmt.Sprintf(":%d", conf.port), nil
+	}
 }
 
 func mainListener(ctx context.Context, wg *sync.WaitGroup, fn cirno.ListenFunc, addr string) {
