@@ -52,7 +52,7 @@ func main() {
 		wg.Add(1)
 		go signalHandler(ctx, cancel, &wg)
 
-		fn, addr, err := listenFunc(cirnoConfig{
+		listenFunc, addr, err := setupListenFunc(cirnoConfig{
 			port:     c.Uint("port"),
 			sockpath: c.String("sock"),
 			timeout:  c.Uint("timeout"),
@@ -62,7 +62,7 @@ func main() {
 		}
 
 		wg.Add(1)
-		go mainListener(ctx, &wg, fn, addr)
+		go mainListener(ctx, &wg, listenFunc, addr)
 
 		wg.Wait()
 		log.Println("Shutdown completed.")
@@ -94,7 +94,7 @@ func signalHandler(ctx context.Context, cancel context.CancelFunc, wg *sync.Wait
 	}
 }
 
-func listenFunc(conf cirnoConfig) (cirno.ListenFunc, string, error) {
+func setupListenFunc(conf cirnoConfig) (cirno.ListenFunc, string, error) {
 	var timeout time.Duration
 	if conf.timeout == 0 {
 		timeout = cirno.InfiniteTimeout
@@ -114,6 +114,10 @@ func listenFunc(conf cirnoConfig) (cirno.ListenFunc, string, error) {
 	}
 }
 
-func mainListener(ctx context.Context, wg *sync.WaitGroup, fn cirno.ListenFunc, addr string) {
-
+func mainListener(ctx context.Context, wg *sync.WaitGroup, listenFunc cirno.ListenFunc, addr string) {
+	defer wg.Done()
+	if err := listenFunc(ctx, addr); err != nil {
+		log.Println("Listen failed", err)
+		os.Exit(1)
+	}
 }
