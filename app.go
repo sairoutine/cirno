@@ -195,6 +195,11 @@ func bytesToCommand(data []byte) (MemdCommand, error) {
 	}
 
 	fields := strings.Fields(string(data))
+
+	if len(fields) == 0 {
+		return nil, errors.New("No command")
+	}
+
 	switch name := strings.ToUpper(fields[0]); name {
 	case "GET", "GETS":
 		if len(fields) < 2 {
