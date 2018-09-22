@@ -1,0 +1,4 @@
+cmd/cirno_server/cirno_server
+vendor/*
+.DS_Store
+
