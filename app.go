@@ -148,7 +148,7 @@ func (c *App) handleConn(ctx context.Context, conn net.Conn) {
 		// execute command
 		if err := cmd.Execute(c, w); err != nil {
 			if err == io.EOF {
-				// normally finish
+				// quited
 				return
 			} else if err := c.writeError(conn); err != nil {
 				// error has occured and can't return error message to client
