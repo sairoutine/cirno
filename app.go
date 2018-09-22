@@ -2,14 +2,11 @@ package cirno
 
 import (
 	"context"
+	"net"
 	"time"
-)
 
-/*
-import (
-	"github.com/rs/xid"
+	_ "github.com/rs/xid"
 )
-*/
 
 const (
 	Version         = "1.0.0"
@@ -19,22 +16,39 @@ const (
 type ListenFunc func(context.Context, string) error
 
 type App struct {
-	timeout *time.Duration
+	startedAt time.Time
+	timeout   *time.Duration
 }
 
 func NewApp(timeout *time.Duration) (*App, error) {
 
 	return &App{
-		timeout: timeout,
+		startedAt: time.Now(),
+		timeout:   timeout,
 	}, nil
 }
 
-func (c *App) ListenSock(context.Context, string) error {
+// ListenSock starts to listen Unix Domain Socket on sockpath.
+func (c *App) ListenSock(ctx context.Context, sockpath string) error {
+	l, err := net.Listen("unix", sockpath)
+	if err != nil {
+		return err
+	}
 
-	return nil
+	return c.Listen(ctx, l)
 }
 
-func (c *App) ListenTCP(context.Context, string) error {
+// ListenTCP starts to listen on addr "host:port".
+func (c *App) ListenTCP(ctx context.Context, addr string) error {
+	l, err := net.Listen("tcp", addr)
+	if err != nil {
+		return err
+	}
+
+	return c.Listen(ctx, l)
+}
+
+func (c *App) Listen(ctx context.Context, l net.Listener) error {
 
 	return nil
 }
