@@ -47,19 +47,19 @@ func (cmd *MemdCommandGet) Execute(app *App, w io.Writer) error {
 	return nil
 }
 
-// MemdCmdQuit defines QUIT command.
-type MemdCmdQuit int
+// MemdCommandQuit defines QUIT command.
+type MemdCommandQuit int
 
 // Execute disconnect by server.
-func (cmd MemdCmdQuit) Execute(app *App, conn io.Writer) error {
+func (cmd MemdCommandQuit) Execute(app *App, conn io.Writer) error {
 	return io.EOF
 }
 
-// MemdCmdVersion defines VERSION command.
-type MemdCmdVersion int
+// MemdCommandVersion defines VERSION command.
+type MemdCommandVersion int
 
 // Execute writes Version number.
-func (cmd MemdCmdVersion) Execute(app *App, w io.Writer) error {
+func (cmd MemdCommandVersion) Execute(app *App, w io.Writer) error {
 	w.Write(memdVersionHeader)
 	io.WriteString(w, Version)
 	w.Write(memdSep)

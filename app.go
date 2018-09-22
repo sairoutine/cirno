@@ -205,9 +205,9 @@ func bytesToCommand(data []byte) (MemdCommand, error) {
 			Keys: fields[1:],
 		}, nil
 	case "QUIT":
-		return MemdCmdQuit(0), nil
+		return MemdCommandQuit(0), nil
 	case "VERSION":
-		return MemdCmdVersion(1), nil
+		return MemdCommandVersion(1), nil
 	default:
 		return nil, errors.New(fmt.Sprintf("Unknown command: %s", name))
 	}
