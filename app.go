@@ -95,7 +95,37 @@ func (c *App) handleConn(ctx context.Context, conn net.Conn) {
 	scanner := bufio.NewScanner(bufReader)
 	w := bufio.NewWriter(conn)
 
-	for scanner.Scan() {
+	for {
+		// get client data
+		if !scanner.Scan() {
+			if err := scanner.Err(); err != nil {
+				select {
+				case <-ctx.Done():
+					// shutting down
+					return
+				default:
+					if ne, ok := err.(net.Error); ok {
+						switch {
+						case ne.Timeout():
+							// client timeout
+							return
+						case ne.Temporary():
+							// try to scan again
+							continue
+						default:
+							log.Println(err)
+							return
+						}
+					} else {
+						log.Println(err)
+						return
+					}
+				}
+			} else {
+				return
+			}
+		}
+
 		// update timeout
 		c.extendDeadline(conn)
 		if err != nil {
@@ -103,7 +133,7 @@ func (c *App) handleConn(ctx context.Context, conn net.Conn) {
 			return
 		}
 
-		// get command
+		// parse command
 		cmd, err := bytesToCommand(scanner.Bytes())
 		if err != nil {
 			if err := c.writeError(conn); err != nil {
@@ -141,29 +171,6 @@ func (c *App) handleConn(ctx context.Context, conn net.Conn) {
 				log.Println("error on cmd %s write to conn: %s", cmd, err)
 				return
 			}
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		select {
-		case <-ctx.Done():
-			// shutting down
-			return
-		default:
-			if ne, ok := err.(net.Error); ok {
-				switch {
-				case ne.Timeout():
-					// client timeout
-					return
-				case ne.Temporary():
-					// TODO: try to scan again
-					log.Println(ne)
-					return
-				}
-			}
-
-			log.Println(err)
-			return
 		}
 	}
 }
